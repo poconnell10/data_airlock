@@ -1,0 +1,218 @@
+# PMS Structural Profile — human-readable specification (Phase 1 Airlock)
+# Machine-validatable twin: pms_profile_schema.json
+
+$schema: https://json-schema.org/draft/2020-12/schema
+title: PMS Structural Profile
+description: >
+  Declarative, vendor-agnostic structural contract for daily PMS file extracts
+  and push API payloads. Consumed by the Extraction Layer Airlock shell.
+  Contains NO business transformation, type casting, or domain evaluation rules.
+
+type: object
+required:
+  - profile_id
+  - profile_version
+  - filename
+  - physical
+  - row_classification
+  - date_bounds
+  - atomic_sets
+  - structure
+
+properties:
+  profile_id:
+    type: string
+    description: Stable profile identifier (e.g. opera_v5).
+    pattern: "^[a-z][a-z0-9_]*$"
+
+  profile_version:
+    type: string
+    description: Semver-like profile revision string.
+
+  description:
+    type: string
+
+  filename:
+    type: object
+    description: >
+      Identity contract — Rule 1. Supports classic landed filenames as well as
+      push transports (URI path / manifest) where a conventional filename is absent.
+    required: [transport, required_groups]
+    properties:
+      transport:
+        type: string
+        enum: [filename, uri_path, manifest]
+        description: Identity token source for the landing event.
+      pattern:
+        type: string
+        description: Basename regex when transport=filename.
+      uri_path_pattern:
+        type: string
+        description: Full-path / URI regex when transport=uri_path.
+      manifest_identity:
+        type: object
+        description: Payload/manifest regex identity when transport=manifest.
+        properties:
+          pattern:
+            type: string
+      required_groups:
+        type: array
+        items:
+          type: string
+          pattern: "^[A-Za-z_][A-Za-z0-9_]*$"
+        uniqueItems: true
+        minItems: 0
+        description: Flexible 0..N named groups required after a successful match.
+      date_format:
+        type: string
+        default: "%Y%m%d"
+      path_glob:
+        type: string
+
+  content_identity:
+    type: object
+    description: >
+      Content-side identity extraction for filename/content agreement assertion.
+    properties:
+      property_pattern:
+        type: string
+      report_type_pattern:
+        type: string
+      business_date_pattern:
+        type: string
+      business_date_format:
+        type: string
+        default: "%Y-%m-%d"
+
+  physical:
+    type: object
+    description: Physical landing expectations — Rule 2.
+    required: [encoding, delimiter, line_ending, compression]
+    properties:
+      encoding:
+        type: string
+      delimiter:
+        type: string
+        minLength: 1
+      line_ending:
+        type: string
+        enum: [lf, crlf, cr, any]
+      compression:
+        type: string
+        enum: [none, gzip, zip]
+      allow_bom:
+        type: boolean
+        default: false
+      min_bytes:
+        type: integer
+        minimum: 1
+        default: 1
+
+  row_classification:
+    type: object
+    description: Ordered exclusive line classification — Rule 3 support.
+    required: [header_rules, footer_rules, ignore_rules, reject_rules]
+    properties:
+      header_rules:
+        type: array
+        items: { $ref: "#/$defs/line_rule" }
+      footer_rules:
+        type: array
+        items: { $ref: "#/$defs/line_rule" }
+      ignore_rules:
+        type: array
+        items: { $ref: "#/$defs/line_rule" }
+      reject_rules:
+        type: array
+        items: { $ref: "#/$defs/line_rule" }
+      data_row_shape:
+        type: object
+        properties:
+          min_fields: { type: integer, minimum: 1 }
+          max_fields: { type: integer, minimum: 1 }
+          exact_fields: { type: integer, minimum: 1 }
+      row_count_declaration:
+        type: object
+        description: >
+          Declared row count from header/footer/manifest. When present, Rule 3
+          asserts total_read_rows == declared_row_count (non-tautological).
+        properties:
+          pattern:
+            type: string
+            description: Regex with named group declared_row_count or declared_total.
+          compares_to:
+            type: string
+            enum: [total_read_rows, accepted_rows]
+            default: total_read_rows
+
+  date_bounds:
+    type: object
+    description: Static calendar floor/ceiling checks — Rule 4.
+    required: [content_date_pattern, date_format, floor_date]
+    properties:
+      content_date_pattern:
+        type: string
+        description: >
+          Regex with named group biz_date. Prefer non-consuming lookbehind/lookahead
+          so adjacent date columns are both scanned.
+      date_format:
+        type: string
+      floor_date:
+        type: string
+      allow_future:
+        type: boolean
+        default: false
+
+  atomic_sets:
+    type: array
+    description: Batch completeness contracts — Rule 5.
+    items:
+      type: object
+      required: [set_id, members, group_by]
+      properties:
+        set_id: { type: string }
+        members:
+          type: array
+          items: { type: string }
+          minItems: 1
+        group_by:
+          type: array
+          items: { type: string }
+          minItems: 1
+        applies_to_report_types:
+          type: array
+          items: { type: string }
+
+  structure:
+    type: object
+    description: Section markers and UDF inventory — Rule 6.
+    required: [expected_sections, udf]
+    properties:
+      expected_sections:
+        type: array
+        items:
+          type: object
+          required: [section_id, marker_pattern]
+          properties:
+            section_id: { type: string }
+            marker_pattern: { type: string }
+            required: { type: boolean, default: true }
+      udf:
+        type: object
+        required: [slot_pattern, expected_slot_count]
+        properties:
+          slot_pattern: { type: string }
+          expected_slot_count: { type: integer, minimum: 0 }
+          count_mode:
+            type: string
+            enum: [distinct_slots, max_per_row, total_matches]
+            default: distinct_slots
+
+$defs:
+  line_rule:
+    type: object
+    required: [rule_id, pattern]
+    properties:
+      rule_id: { type: string }
+      pattern: { type: string }
+      description: { type: string }

@@ -1,0 +1,11 @@
+# Stateless Phase-1 property registry. Airlock only checks membership + profile binding.
+version: "1.0"
+properties:
+  PROP102:
+    name: Demo City Hotel
+    active: true
+    pms_profile: opera_v5
+  PROP200:
+    name: Demo Airport Hotel
+    active: true
+    pms_profile: opera_v5

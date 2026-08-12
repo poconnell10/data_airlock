@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --airlock-ink: #0f172a;
+  --airlock-mist: #f1f5f9;
+  --airlock-accent: #0e7490;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: #e2e8f0;
+  background: #0b1220;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .airlock-panel {
+    @apply rounded-xl border border-slate-200/80 bg-white/90 shadow-sm backdrop-blur;
+  }
+
+  .airlock-input {
+    @apply w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900
+      outline-none ring-cyan-700/20 placeholder:text-slate-400
+      focus:border-cyan-700 focus:ring-2;
+  }
+
+  .airlock-label {
+    @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500;
+  }
+
+  .airlock-tab {
+    @apply rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition
+      hover:bg-slate-100 hover:text-slate-900;
+  }
+
+  .airlock-tab-active {
+    @apply bg-cyan-700 text-white hover:bg-cyan-800 hover:text-white;
+  }
+}

@@ -1,0 +1,90 @@
+profile_id: opera_v5
+profile_version: "5.0.1"
+description: >
+  Opera V5 daily TSA extract family. Filename tokens carry property, report type
+  (TSA01–TSA06), business date, and sequence. Pipe-delimited UTF-8 with CRLF.
+  Atomic set requires TSA01–TSA06 for the same property/date/sequence before release.
+
+filename:
+  transport: filename
+  pattern: '^(?P<report_type>TSA0[1-6])_(?P<property>[A-Z0-9]{3,12})_(?P<date>\d{8})_(?P<sequence>\d{2})\.(?P<ext>csv)$'
+  required_groups: [property, report_type, date, sequence, ext]
+  date_format: "%Y%m%d"
+  path_glob: "landing/{property}/{date}/"
+
+content_identity:
+  # HDR|FILE|<profile>|<report_type>|<property>|<business_date>|
+  property_pattern: '^HDR\|FILE\|[^|]*\|[^|]*\|(?P<property>[A-Z0-9]+)\|'
+  report_type_pattern: '^HDR\|FILE\|[^|]*\|(?P<report_type>TSA0[1-6])\|'
+  business_date_pattern: '^HDR\|FILE\|[^|]*\|[^|]*\|[^|]*\|(?P<business_date>\d{4}-\d{2}-\d{2})(?=[|,\t\r\n]|$)'
+  business_date_format: "%Y-%m-%d"
+
+physical:
+  encoding: utf-8
+  delimiter: "|"
+  line_ending: crlf
+  compression: none
+  allow_bom: false
+  min_bytes: 1
+
+row_classification:
+  header_rules:
+    - rule_id: hdr_file
+      pattern: '^HDR\|FILE\|'
+      description: File-level header record
+    - rule_id: hdr_column
+      pattern: '^HDR\|COLUMNS\|'
+      description: Column dictionary header
+  footer_rules:
+    - rule_id: trl_count
+      pattern: '^TRL\|COUNT\|(?P<declared_row_count>\d+)(?=[|,\t\r\n]|$)'
+      description: Trailer with declared total physical row count
+  ignore_rules:
+    - rule_id: blank
+      pattern: '^\s*$'
+      description: Blank / whitespace-only lines
+    - rule_id: comment
+      pattern: '^#\|'
+      description: Hash comment lines (literal #|)
+    - rule_id: section_marker
+      pattern: '^SEC\|'
+      description: Section markers inventoried by Rule 6; not data rows
+  reject_rules:
+    - rule_id: err_marker
+      pattern: '^ERR\|'
+      description: Vendor error stub rows — rejected, not accepted
+  data_row_shape:
+    min_fields: 4
+    max_fields: 32
+  row_count_declaration:
+    pattern: '^TRL\|COUNT\|(?P<declared_row_count>\d+)(?=[|,\t\r\n]|$)'
+    compares_to: total_read_rows
+
+date_bounds:
+  # Non-consuming boundaries so adjacent date columns are both scanned.
+  content_date_pattern: '(?P<biz_date>\d{4}-\d{2}-\d{2})(?=[|,\t\r\n]|$)'
+  date_format: "%Y-%m-%d"
+  floor_date: "2020-01-01"
+  allow_future: false
+
+atomic_sets:
+  - set_id: opera_tsa_daily
+    members: [TSA01, TSA02, TSA03, TSA04, TSA05, TSA06]
+    group_by: [property, date, sequence]
+    applies_to_report_types: [TSA01, TSA02, TSA03, TSA04, TSA05, TSA06]
+
+structure:
+  expected_sections:
+    - section_id: HEADER
+      marker_pattern: '^HDR\|FILE\|'
+      required: true
+    - section_id: DAILY_SUMMARY
+      marker_pattern: '^SEC\|DAILY_SUMMARY\|'
+      required: true
+    - section_id: TAX_RECAP
+      marker_pattern: '^SEC\|TAX_RECAP\|'
+      required: true
+  udf:
+    slot_pattern: '(?:^|\|)(?P<slot>UDF\d{2})='
+    expected_slot_count: 4
+    count_mode: distinct_slots

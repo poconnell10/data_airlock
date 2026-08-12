@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Airlock · Property Setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    --dsp:'Space Grotesk',var(--font);--mono:'JetBrains Mono',ui-monospace,monospace;
+    --ink:#141821;--ink-2:#39404E;--mut:#6B7280;--mut-2:#9CA3AF;
+    --line:#E8EAEF;--line-2:#F1F3F6;--bg:#F7F8FA;--soft:#FAFBFC;
+    --blue:#2F6BF0;--blue-bg:#EDF3FE;--blue-line:#C5DAFB;
+    --green:#12A150;--green-bg:#E8F6EE;--green-line:#A5E0BE;
+    --amber:#C2740B;--amber-bg:#FDF3E3;--amber-line:#F0D5A8;
+    --red:#DC2626;--red-bg:#FDECEC;--red-line:#F8C6C6;
+    --purple:#7C3AED;--purple-bg:#F3EDFD;
+    --sb:#12141C;--sb-line:rgba(255,255,255,.07);--sb-txt:#BCC2CF;
+    --sb-mut:rgba(255,255,255,.3);--sb-act:#5B93FF;--sb-act-bg:rgba(91,147,255,.13);
+    --r:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5;display:flex;height:100vh;overflow:hidden}
+  ::selection{background:var(--blue-bg)}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{color:#2459cf}
+
+  /* ============ SIDEBAR ============ */
+  .sb{width:212px;flex:none;background:var(--sb);display:flex;flex-direction:column;height:100%;min-height:0}
+  .sbrand{display:flex;align-items:center;gap:9px;padding:15px 14px 13px;border-bottom:1px solid var(--sb-line);flex:none}
+  .sbrand svg{width:22px;height:22px;color:#fff;flex:none}
+  .sbrand .wm{font-family:var(--dsp);font-weight:700;font-size:16px;letter-spacing:-.03em;color:#fff}
+  .ssearch{position:relative;padding:9px 10px 6px;flex:none}
+  .ssearch>svg{position:absolute;left:20px;top:50%;transform:translateY(-40%);width:13px;height:13px;color:rgba(255,255,255,.32)}
+  .ssearch input{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--sb-line);border-radius:7px;padding:6px 34px 6px 30px;font-family:var(--font);font-size:12px;color:#fff}
+  .ssearch input::placeholder{color:rgba(255,255,255,.32)}
+  .ssearch input:focus{outline:none;border-color:rgba(91,147,255,.5);background:rgba(255,255,255,.09)}
+  .ssearch kbd{position:absolute;right:20px;top:50%;transform:translateY(-40%);font-family:var(--font);font-size:9.5px;color:rgba(255,255,255,.3);border:1px solid var(--sb-line);border-radius:4px;padding:1px 4px}
+  .sbody{padding:5px 6px;flex:1;min-height:0;overflow-y:auto}
+  .g{font-size:8.5px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--sb-mut);padding:12px 9px 4px;display:flex;align-items:center;gap:7px}
+  .g::after{content:"";flex:1;height:1px;background:var(--sb-line)}
+  .g:first-child{padding-top:5px}
+  .n{display:flex;align-items:center;gap:9px;padding:6px 9px;border-radius:7px;color:var(--sb-txt);font-size:12.5px;cursor:pointer;margin-bottom:1px;line-height:1.3}
+  .n:hover{background:rgba(255,255,255,.055)}
+  .n.on{background:var(--sb-act-bg);color:#fff;font-weight:550}
+  .n.on .ic{color:var(--sb-act);opacity:1}
+  .n.inert{opacity:.5;cursor:default}
+  .n.inert:hover{background:none}
+  .ic{width:15px;height:15px;flex:none;opacity:.58}
+  .n .lb{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .n .cv{width:12px;height:12px;flex:none;opacity:.42;transition:.16s}
+  .n.open .cv{transform:rotate(90deg)}
+  .schild{display:none;padding-left:9px;margin:1px 0 3px 12px;border-left:1px solid var(--sb-line);flex-direction:column}
+  .schild.open{display:flex}
+  .schild .c{display:flex;align-items:center;gap:8px;padding:5px 9px;border-radius:6px;color:var(--sb-mut);font-size:11.5px;cursor:pointer;text-decoration:none;line-height:1.3}
+  .schild .c:hover{background:rgba(255,255,255,.05);color:var(--sb-txt)}
+  .schild .c.on{color:#fff;background:var(--sb-act-bg);font-weight:600}
+  .schild .c svg{width:12px;height:12px;flex:none;opacity:.6}
+  .sbadge{font-size:8.5px;font-weight:700;letter-spacing:.08em;padding:1px 5px;border-radius:99px;background:rgba(91,147,255,.2);color:var(--sb-act)}
+  .sfoot{padding:9px 14px 11px;border-top:1px solid var(--sb-line);flex:none}
+  .sfoot .nm{font-size:11.5px;color:#DDE1E9;font-weight:550}
+  .sfoot .rl{font-size:10px;color:var(--sb-mut)}
+
+  /* ============ MAIN ============ */
+  .main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column}
+  .top{height:50px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 22px;flex:none;gap:16px}
+  .crumb{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--mut);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb .sep{color:var(--mut-2)}
+  .crumb .cur{color:var(--ink);font-weight:600}
+  .topR{display:flex;align-items:center;gap:11px;flex:none}
+  .ver{font-family:var(--mono);font-size:10.5px;color:var(--mut);background:var(--soft);border:1px solid var(--line);padding:3px 8px;border-radius:5px}
+  .scroll{flex:1;min-height:0;overflow-y:auto}
+  .wrap{max-width:1240px;margin:0 auto;padding:22px 22px 90px}
+
+  .btn{font-family:var(--font);font-size:13px;font-weight:600;border-radius:8px;padding:8px 14px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink-2);display:inline-flex;align-items:center;gap:7px;transition:.13s;white-space:nowrap}
+  .btn:hover{background:var(--soft);border-color:#DADEE5}
+  .btn svg{width:14px;height:14px}
+  .btn.pri{background:var(--blue);border-color:var(--blue);color:#fff}
+  .btn.pri:hover{background:#2459cf}
+  .btn.sm{padding:5px 10px;font-size:12px}
+  .btn.dis{opacity:.45;pointer-events:none}
+
+  /* ============ PAGE HEADER ============ */
+  .phead{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:22px;flex-wrap:wrap}
+  .hier{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mut-2);display:flex;align-items:center;gap:6px;margin-bottom:5px}
+  .hier .cu{color:var(--ink-2)}
+  .hier svg{width:11px;height:11px;opacity:.5}
+  .phead h1{font-family:var(--dsp);font-size:22px;font-weight:700;letter-spacing:-.025em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .code{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink-2);background:var(--soft);border:1px solid var(--line);padding:2px 8px;border-radius:6px}
+  .hsub{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:9px;font-size:12.5px;color:var(--mut)}
+  .hsub em{font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mut-2);margin-right:5px}
+  .dot{width:3px;height:3px;border-radius:50%;background:var(--mut-2)}
+  .hact{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+  .presetbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--blue-bg);border:1px solid var(--blue-line);border-radius:11px;padding:11px 14px;margin-top:12px}
+  .presetbar .pk{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);flex:none}
+  .presets{display:flex;gap:6px;flex-wrap:wrap}
+  .pchip{font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--ink-2);background:#fff;border:1px solid var(--blue-line);border-radius:8px;padding:5px 11px;cursor:pointer;transition:.12s;display:inline-flex;align-items:center;gap:7px}
+  .pchip:hover{border-color:var(--blue)}
+  .pchip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .pchip svg{width:12px;height:12px}
+  .presetbar .pn{font-size:11.5px;color:var(--ink-2);flex:1;min-width:170px;text-wrap:pretty}
+
+  /* ============ LAYOUT: RAIL + SECTIONS ============ */
+  .cols{display:grid;grid-template-columns:246px minmax(0,1fr);gap:20px;align-items:start;margin-top:20px}
+  @media(max-width:1000px){.cols{grid-template-columns:1fr}.rail{position:static!important}}
+  .rail{position:sticky;top:0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:2px}
+  .rk{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mut-2);padding:8px 9px 5px}
+  .rn{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;cursor:pointer;font-size:12.5px;color:var(--ink-2);line-height:1.3;transition:.12s;border:1px solid transparent;text-align:left;background:none;font-family:var(--font);width:100%}
+  .rn:hover{background:var(--soft)}
+  .rn.on{background:var(--blue-bg);border-color:var(--blue-line);color:var(--ink);font-weight:600}
+  .rn .num{width:19px;height:19px;border-radius:5px;background:var(--line-2);color:var(--mut);font-family:var(--mono);font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;flex:none}
+  .rn.on .num{background:var(--blue);color:#fff}
+  .rn .rl2{flex:1;min-width:0}
+  .rn .rl2 b{display:block;font-weight:inherit}
+  .rn .rl2 i{font-style:normal;display:block;font-size:10.5px;color:var(--mut-2);font-weight:400}
+  .rn .cnt{font-size:10px;font-weight:700;color:var(--mut-2);background:var(--line-2);padding:1px 6px;border-radius:99px;flex:none}
+  .rn.on .cnt{background:#fff;color:var(--blue)}
+
+  /* ============ SECTION CARDS ============ */
+  .sec{display:none;flex-direction:column;gap:14px}
+  .sec.on{display:flex}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .chd{padding:14px 17px;border-bottom:1px solid var(--line-2);display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+  .chd .t{font-family:var(--dsp);font-size:15px;font-weight:650;letter-spacing:-.015em;display:flex;align-items:center;gap:9px}
+  .chd .s{font-size:12px;color:var(--mut);margin-top:3px;max-width:640px;text-wrap:pretty}
+  .cb{padding:16px 17px}
+  .gtag{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.04em;color:var(--purple);background:var(--purple-bg);padding:2px 7px;border-radius:5px;text-transform:uppercase}
+  .nomut{font-size:10.5px;font-weight:600;color:var(--green);background:var(--green-bg);border:1px solid var(--green-line);padding:2px 8px;border-radius:99px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+  .nomut svg{width:10px;height:10px}
+
+  .grp{border-top:1px solid var(--line-2);padding-top:14px;margin-top:16px}
+  .grp:first-child{border-top:none;padding-top:0;margin-top:0}
+  .gk{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--mut-2);margin-bottom:11px;display:flex;align-items:center;gap:7px}
+
+  .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:13px}
+  .row.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+  @media(max-width:620px){.row.two{grid-template-columns:1fr}}
+  .f{min-width:0}
+  .f label{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mut-2);margin-bottom:6px}
+  .f label .opt{font-weight:600;letter-spacing:0;text-transform:none;font-size:11px}
+  .f input,.f select{width:100%;font-family:var(--font);font-size:13.5px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 11px}
+  .f input.mono,.f textarea.mono{font-family:var(--mono);font-size:12.5px}
+  .f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+  .f .hint{font-size:11.5px;color:var(--mut-2);margin-top:5px;text-wrap:pretty}
+  .f textarea{width:100%;font-family:var(--font);font-size:13px;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 11px;resize:vertical;min-height:64px;line-height:1.55}
+  .unit{position:relative}
+  .unit input{padding-right:56px}
+  .unit .u{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:11px;color:var(--mut-2)}
+
+  /* toggles */
+  .tg{display:flex;align-items:flex-start;gap:11px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;cursor:pointer;transition:.12s;background:#fff;text-align:left;font-family:var(--font);width:100%}
+  .tg:hover{border-color:#CFD6E2}
+  .tg.on{border-color:var(--blue-line);background:var(--blue-bg)}
+  .sw{width:32px;height:18px;border-radius:99px;background:#D3D8E0;flex:none;position:relative;transition:.15s;margin-top:1px}
+  .sw::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.15s;box-shadow:0 1px 2px rgba(16,24,40,.2)}
+  .tg.on .sw{background:var(--blue)}
+  .tg.on .sw::after{left:16px}
+  .tg .tx{min-width:0;flex:1}
+  .tg .tl{font-size:13px;font-weight:600;color:var(--ink);line-height:1.35}
+  .tg .td{font-size:11.5px;color:var(--mut);margin-top:2px;line-height:1.45;text-wrap:pretty}
+  .tglist{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:9px}
+
+  /* regex token helper */
+  .tokbox{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:13px 14px;margin-top:11px}
+  .tokhd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .tokhd .k{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--mut-2)}
+  .sample{display:block;width:100%;font-family:var(--mono);font-size:12.5px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+  .sample:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+  .toks{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+  .tok{display:flex;flex-direction:column;gap:2px;background:#fff;border:1px solid var(--line);border-left:2px solid var(--blue);border-radius:7px;padding:6px 10px;min-width:0}
+  .tok .tk{font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--blue);font-weight:500}
+  .tok .tv{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:500;word-break:break-all}
+  .tok.miss{border-left-color:var(--red)}
+  .tok.miss .tk{color:var(--red)}
+  .tok.miss .tv{color:var(--mut-2)}
+  .parse{display:flex;align-items:center;gap:8px;margin-top:11px;font-size:12px;font-weight:600;padding:8px 11px;border-radius:8px}
+  .parse svg{width:13px;height:13px;flex:none}
+  .parse.ok{color:var(--green);background:var(--green-bg);border:1px solid var(--green-line)}
+  .parse.bad{color:var(--red);background:var(--red-bg);border:1px solid var(--red-line)}
+  .split{font-family:var(--mono);font-size:12.5px;background:#fff;border:1px solid var(--line);border-radius:7px;padding:9px 11px;margin-top:10px;word-break:break-all;line-height:1.9}
+  .sp{padding:2px 4px;border-radius:4px;font-weight:500}
+  .sp.property{background:#EDF3FE;color:#1D4ED8;box-shadow:inset 0 -2px 0 #93B4FA}
+  .sp.date{background:var(--green-bg);color:#0B7A3D;box-shadow:inset 0 -2px 0 var(--green-line)}
+  .sp.report_type{background:var(--purple-bg);color:#5B21B6;box-shadow:inset 0 -2px 0 #C4B5FD}
+  .sp.hash{background:#F1F3F6;color:var(--mut)}
+
+  /* chip lists (atomic set, noise filters) */
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+  .ch{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12px;background:#fff;border:1px solid var(--line);border-radius:7px;padding:5px 9px;color:var(--ink-2)}
+  .ch button{background:none;border:none;color:var(--mut-2);cursor:pointer;display:flex;padding:0;line-height:1}
+  .ch button:hover{color:var(--red)}
+  .ch button svg{width:11px;height:11px}
+  .ch.req::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--blue)}
+  .addrow{display:flex;gap:7px;margin-top:9px}
+  .addrow input{flex:1;font-family:var(--mono);font-size:12.5px;border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+  .addrow input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+
+  /* mapping + routing tables */
+  table{width:100%;border-collapse:collapse}
+  thead th{text-align:left;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut-2);padding:0 11px 8px;white-space:nowrap}
+  tbody td{padding:9px 11px;border-top:1px solid var(--line-2);font-size:12.5px;color:var(--ink-2);vertical-align:middle}
+  tbody tr:first-child td{border-top:1px solid var(--line)}
+  td .mono{font-family:var(--mono);font-size:12px}
+  td select,td input{width:100%;font-family:var(--font);font-size:12.5px;border:1px solid var(--line);border-radius:7px;padding:6px 9px;background:#fff;color:var(--ink)}
+  td select:focus,td input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+  .oc{font-family:var(--mono);font-size:10.5px;font-weight:500;padding:2px 7px;border-radius:5px;white-space:nowrap}
+  .oc.q{color:var(--amber);background:var(--amber-bg)}
+  .oc.r{color:var(--red);background:var(--red-bg)}
+  .oc.h{color:var(--blue);background:var(--blue-bg)}
+  .oc.f{color:var(--purple);background:var(--purple-bg)}
+  .oc.m{color:var(--mut);background:var(--line-2)}
+
+  /* threshold slider */
+  .sld{display:flex;align-items:center;gap:13px;margin-top:4px}
+  .sld input[type=range]{flex:1;accent-color:var(--blue);height:4px}
+  .sld .val{font-family:var(--mono);font-size:15px;font-weight:500;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:7px;padding:4px 11px;flex:none;min-width:70px;text-align:center}
+  .scale{display:flex;justify-content:space-between;font-size:10.5px;color:var(--mut-2);margin-top:6px;font-family:var(--mono)}
+
+  /* ============ TEST BENCH DRAWER ============ */
+  .drw{position:fixed;top:0;right:0;bottom:0;width:520px;max-width:94vw;background:#fff;border-left:1px solid var(--line);box-shadow:-18px 0 44px rgba(16,24,40,.13);transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);z-index:60;display:flex;flex-direction:column}
+  .drw.on{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(16,24,40,.28);opacity:0;pointer-events:none;transition:.22s;z-index:50}
+  .scrim.on{opacity:1;pointer-events:auto}
+  .dhd{padding:15px 18px;border-bottom:1px solid var(--line);flex:none;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .dhd .t{font-family:var(--dsp);font-size:16px;font-weight:700;letter-spacing:-.02em}
+  .dhd .s{font-size:12px;color:var(--mut);margin-top:3px;text-wrap:pretty}
+  .dhd .x{background:none;border:none;cursor:pointer;color:var(--mut-2);padding:3px;flex:none}
+  .dhd .x:hover{color:var(--ink)}
+  .dhd .x svg{width:16px;height:16px}
+  .dbd{flex:1;min-height:0;overflow-y:auto;padding:16px 18px}
+  .dft{padding:12px 18px;border-top:1px solid var(--line);flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .dft .lg{font-size:11.5px;color:var(--mut-2)}
+
+  .drop{border:1.5px dashed var(--blue-line);background:var(--blue-bg);border-radius:10px;padding:15px;text-align:center;font-size:12.5px;color:var(--ink-2);cursor:pointer;transition:.13s}
+  .drop:hover,.drop.over{border-color:var(--blue);background:#E4EDFD}
+  .drop svg{width:19px;height:19px;color:var(--blue);margin-bottom:5px}
+  .drop b{display:block;font-size:13px;color:var(--ink)}
+  .drop .p{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:5px}
+  .fk{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--mut-2);margin:16px 0 8px}
+  .flist{display:flex;flex-direction:column;gap:6px}
+  .fitem{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;cursor:pointer;transition:.12s;background:#fff;text-align:left;width:100%;font-family:var(--font)}
+  .fitem:hover{border-color:#CFD6E2;background:var(--soft)}
+  .fitem.on{border-color:var(--blue);background:var(--blue-bg);box-shadow:0 0 0 2px var(--blue-bg)}
+  .fitem svg{width:14px;height:14px;color:var(--mut-2);flex:none}
+  .fitem.on svg{color:var(--blue)}
+  .fitem .fn{font-family:var(--mono);font-size:11.5px;color:var(--ink);flex:1;min-width:0;word-break:break-all;line-height:1.4}
+  .fitem .fm{font-size:10.5px;color:var(--mut-2);flex:none;text-align:right;white-space:nowrap}
+
+  .gates{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+  .gr{display:flex;align-items:flex-start;gap:11px;border:1px solid var(--line);border-radius:9px;padding:11px 12px}
+  .gr .gi{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex:none;font-family:var(--mono);font-size:10px;font-weight:500}
+  .gr .gt{flex:1;min-width:0}
+  .gr .gn{font-size:12.5px;font-weight:600;color:var(--ink)}
+  .gr .gd{font-size:11.5px;color:var(--mut);margin-top:2px;line-height:1.45;text-wrap:pretty}
+  .bdg2{font-family:var(--mono);font-size:9.5px;font-weight:500;letter-spacing:.05em;padding:2px 7px;border-radius:5px;flex:none;white-space:nowrap}
+  .st-pass{color:var(--green);background:var(--green-bg)}.st-pass-i{background:var(--green-bg);color:var(--green)}
+  .st-flag{color:var(--amber);background:var(--amber-bg)}.st-flag-i{background:var(--amber-bg);color:var(--amber)}
+  .st-quar{color:var(--red);background:var(--red-bg)}.st-quar-i{background:var(--red-bg);color:var(--red)}
+  .st-hold{color:var(--blue);background:var(--blue-bg)}.st-hold-i{background:var(--blue-bg);color:var(--blue)}
+  .st-skip{color:var(--mut);background:var(--line-2)}.st-skip-i{background:var(--line-2);color:var(--mut-2)}
+  .verdict{border-radius:10px;padding:13px 14px;margin-bottom:14px;border:1px solid}
+  .verdict .vk{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;opacity:.8}
+  .verdict .vv{font-family:var(--dsp);font-size:19px;font-weight:700;letter-spacing:-.02em;margin-top:3px}
+  .verdict .vd{font-size:12px;margin-top:5px;line-height:1.5;text-wrap:pretty}
+  .v-pass{background:var(--green-bg);border-color:var(--green-line);color:#0B6B34}
+  .v-flag{background:var(--amber-bg);border-color:var(--amber-line);color:#7A4A06}
+  .v-quar{background:var(--red-bg);border-color:var(--red-line);color:#A31717}
+  .v-hold{background:var(--blue-bg);border-color:var(--blue-line);color:#1D4ED8}
+  pre{font-family:var(--mono);font-size:11px;line-height:1.6;background:#12141C;color:#C9D1E4;border-radius:9px;padding:13px;overflow-x:auto;margin-top:4px}
+  pre .k{color:#7FB2FF}pre .s{color:#9BE3B4}pre .n{color:#F0C08A}pre .b{color:#D9A8F5}
+  .empty{text-align:center;padding:34px 18px;color:var(--mut-2);font-size:12.5px;text-wrap:pretty}
+  .empty svg{width:26px;height:26px;margin-bottom:9px;opacity:.5}
+
+  /* tooltips */
+  .tt{position:relative}
+  label.tt,span.tt{display:inline-flex}
+  .tt[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);background:#1B1F2A;color:#fff;font-size:11.5px;font-weight:500;line-height:1.5;padding:7px 10px;border-radius:7px;width:max-content;max-width:260px;white-space:normal;text-align:left;z-index:80;box-shadow:0 5px 18px rgba(16,24,40,.2);pointer-events:none}
+  .tt[data-tip]:hover::before{content:"";position:absolute;left:50%;bottom:calc(100% + 3px);transform:translateX(-50%);border:5px solid transparent;border-top-color:#1B1F2A;z-index:80;pointer-events:none}
+  .tt.below[data-tip]:hover::after{bottom:auto;top:calc(100% + 8px)}
+  .tt.below[data-tip]:hover::before{bottom:auto;top:calc(100% + 3px);border-top-color:transparent;border-bottom-color:#1B1F2A}
+  .qm{width:14px;height:14px;border-radius:50%;border:1px solid var(--line);color:var(--mut-2);font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none;cursor:help;background:#fff}
+  .qm:hover{border-color:var(--blue-line);background:var(--blue-bg);color:var(--blue)}
+
+  /* toast */
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(90px);background:#12141C;color:#fff;font-size:13px;font-weight:550;padding:11px 18px;border-radius:9px;box-shadow:0 12px 34px rgba(16,24,40,.3);transition:.25s;opacity:0;z-index:90;display:flex;align-items:center;gap:9px}
+  .toast.on{transform:translateX(-50%);opacity:1}
+  .toast svg{width:15px;height:15px;color:#6EE7A8}
+</style>
+</head>
+<body>
+
+<!-- ============ SIDEBAR ============ -->
+<aside class="sb">
+  <div class="sbrand">
+    <svg viewBox="0 0 120 120" fill="none"><polyline points="16,93 45,66 73,75 104,30" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="93" r="6.5" fill="currentColor"/><circle cx="104" cy="30" r="13.5" stroke="currentColor" stroke-width="8"/><circle cx="104" cy="30" r="4" fill="currentColor"/></svg>
+    <span class="wm">traqra</span>
+  </div>
+  <div class="ssearch">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input placeholder="Jump to…" title="Outside this prototype">
+    <kbd>⌘K</kbd>
+  </div>
+  <div class="sbody">
+    <div class="g">Work</div>
+    <div class="n inert" title="Outside this prototype"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="lb">Dashboard</span></div>
+    <div class="n inert" title="Outside this prototype"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h11M4 12h11M4 18h7"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="12" r="2"/></svg><span class="lb">Requirements</span></div>
+
+    <div class="g">Delivery</div>
+    <div class="n" onclick="tgNav(this,'navGG')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3.5v5.6c0 4.6-3.3 8.4-8 9.9-4.7-1.5-8-5.3-8-9.9V6.5z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg><span class="lb">GoLive Gates</span><svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></div>
+    <div class="schild" id="navGG">
+      <a class="c" href="GoLive Gates Workspace.html"><span style="width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.5;margin-left:3px"></span>Implementations</a>
+      <a class="c" href="GoLive Gates Governance.html"><span style="width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.5;margin-left:3px"></span>Governance</a>
+    </div>
+
+    <div class="n open" onclick="tgNav(this,'navDA')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 7l3-4h12l3 4M6 7v13a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7"/><path d="M9 12h6M9 16h6"/></svg><span class="lb">Data Airlock</span><span class="sbadge">NEW</span><svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></div>
+    <div class="schild open" id="navDA">
+      <div class="c" title="Outside this prototype"><span style="width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.5;margin-left:3px"></span>Feed Monitor</div>
+      <div class="c on"><span style="width:4px;height:4px;border-radius:50%;background:currentColor;margin-left:3px"></span>Property Setup</div>
+      <div class="c" title="Outside this prototype"><span style="width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.5;margin-left:3px"></span>Quarantine</div>
+      <div class="c" title="Outside this prototype"><span style="width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.5;margin-left:3px"></span>Run Reports</div>
+    </div>
+
+    <div class="g">Platform</div>
+    <div class="n inert" title="Outside this prototype"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 3 4-6"/></svg><span class="lb">Reporting</span></div>
+    <div class="n inert" title="Outside this prototype"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 6a3 3 0 0 1 0 6M21 20a5 5 0 0 0-4-5"/></svg><span class="lb">Administration</span></div>
+    <div class="n inert" title="Outside this prototype"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/></svg><span class="lb">Logs</span></div>
+  </div>
+  <div class="sfoot">
+    <div class="nm">Padraig O'Connell</div>
+    <div class="rl">Super Admin</div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="top">
+    <div class="crumb">
+      <span>Data Airlock</span><span class="sep">/</span>
+      <span>Properties</span><span class="sep">/</span>
+      <span class="cur" id="crumbProp">NH Collection Eurobuilding</span>
+    </div>
+    <div class="topR">
+      <span class="ver tt below" data-tip="Contract version. Saving increments it and writes an immutable audit entry.">contract v4 · draft</span>
+      <button class="btn sm tt below" data-tip="Opens the live S3 test bench. Nothing is saved and no data is modified." onclick="openDrw()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9z"/></svg>Test bench
+      </button>
+    </div>
+  </div>
+
+  <div class="scroll">
+    <div class="wrap">
+
+      <!-- ============ HEADER ============ -->
+      <div class="phead">
+        <div style="min-width:0">
+          <div class="hier"><span class="cu">Minor Hotels</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M9 6l6 6-6 6"/></svg><span class="cu">Property</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M9 6l6 6-6 6"/></svg><span>Airlock contract</span></div>
+          <h1>NH Collection Eurobuilding <span class="code tt below" data-tip="The property code embedded in every delivered filename. Gate 1 asserts the filename token matches this exactly.">ESMA.MALAG</span></h1>
+          <div class="hsub">
+            <span><em>Feed</em><b id="hFeed">POS · daily</b></span><span class="dot"></span>
+            <span><em>Prefix</em><span class="code" style="font-size:11px" id="hPrefix">s3://ing-airlock/raw/ESMA.MALAG/</span></span>
+          </div>
+        </div>
+        <div class="hact">
+          <button class="btn tt below" data-tip="Run all four gates against a real file from the S3 landing prefix. Read-only — nothing is transformed or saved." onclick="openDrw()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9z"/></svg>Test against live S3 file</button>
+          <button class="btn tt below" data-tip="Exports this contract as a versioned YAML profile for review or reuse on another property." onclick="toast('Profile YAML exported')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export profile YAML</button>
+          <button class="btn pri tt below" data-tip="Publishes the contract. It takes effect on the next scheduled delivery and the change is recorded permanently." onclick="save()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Save airlock contract</button>
+        </div>
+      </div>
+
+      <!-- preset bar -->
+      <div class="presetbar">
+        <span class="pk tt below" data-tip="A vendor profile pre-populates the filename regex, delimiter, encoding, atomic file set and gate defaults known to work for that source system.">Vendor preset</span>
+        <div class="presets" id="presets"></div>
+        <div class="pn" id="presetNote"></div>
+      </div>
+
+      <!-- ============ RAIL + SECTIONS ============ -->
+      <div class="cols">
+        <div class="rail" id="rail"></div>
+        <div id="secs">
+
+          <!-- ===== 0 · SCHEDULE ===== -->
+          <div class="sec" id="s0">
+            <div class="card">
+              <div class="chd">
+                <div>
+                  <div class="t">Schedule &amp; SLA delivery ledger</div>
+                  <div class="s">The airlock expects one delivery per business day. If nothing lands by the cutoff plus grace, the ledger raises a missing-delivery breach — absence is treated as an event, not silence.</div>
+                </div>
+              </div>
+              <div class="cb">
+                <div class="row">
+                  <div class="f">
+                    <label class="tt below" data-tip="All cutoff and business-date logic is evaluated in the property's local time, not UTC.">Property timezone<span class="qm">?</span></label>
+                    <select id="tz" onchange="set('tz',this.value)">
+                      <option>Europe/Madrid</option><option>Europe/London</option><option>Europe/Amsterdam</option><option>America/New_York</option><option>Asia/Dubai</option><option>Australia/Sydney</option>
+                    </select>
+                  </div>
+                  <div class="f">
+                    <label class="tt below" data-tip="The time by which yesterday's data is expected to have landed in the S3 prefix.">Expected daily cutoff<span class="qm">?</span></label>
+                    <input type="time" value="07:00" id="cutoff" onchange="set('cutoff',this.value)">
+                  </div>
+                  <div class="f">
+                    <label class="tt below" data-tip="How long after the cutoff the airlock waits before declaring MISSING_DELIVERY. Absorbs normal vendor jitter without hiding a real outage.">SLA grace period<span class="qm">?</span></label>
+                    <div class="unit"><input type="number" value="60" min="0" max="720" id="grace" onchange="set('grace',this.value)"><span class="u">min</span></div>
+                  </div>
+                </div>
+                <div class="grp">
+                  <div class="gk">Ledger behaviour</div>
+                  <div class="tglist">
+                    <button class="tg on" onclick="tg(this,'ledgerBackfill')"><span class="sw"></span><span class="tx"><span class="tl">Accept late backfill</span><span class="td">A delivery arriving after the breach still processes, and the ledger records both the breach and the recovery.</span></span></button>
+                    <button class="tg on" onclick="tg(this,'ledgerWeekend')"><span class="sw"></span><span class="tx"><span class="tl">Expect deliveries seven days a week</span><span class="td">Off for properties that only transmit on trading days. Affects which dates count as missing.</span></span></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== 1 · GATE 1 ===== -->
+          <div class="sec" id="s1">
+            <div class="card">
+              <div class="chd">
+                <div>
+                  <div class="t"><span class="gtag">Gate 1</span>Extraction contract</div>
+                  <div class="s">Stateless landing checks. Everything here can be judged from the file itself — no history required. A file that fails Gate 1 never reaches the stateful gates.</div>
+                </div>
+                <span class="nomut tt below" data-tip="This gate inspects and routes only. It never rewrites, reorders or cleans the delivered file."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Non-mutating</span>
+              </div>
+              <div class="cb">
+                <div class="grp">
+                  <div class="gk">Transport &amp; encoding</div>
+                  <div class="row">
+                    <div class="f">
+                      <label class="tt below" data-tip="Declared byte encoding. A mismatch is caught here rather than surfacing as mangled characters downstream.">Encoding<span class="qm">?</span></label>
+                      <select id="enc" onchange="set('enc',this.value)"><option>UTF-8</option><option>UTF-8-BOM</option><option>ISO-8859-1</option><option>Windows-1252</option></select>
+                    </div>
+                    <div class="f">
+                      <label class="tt below" data-tip="Field separator the vendor writes. Checked before parsing so a silent delimiter change is rejected, not misread.">Delimiter<span class="qm">?</span></label>
+                      <select id="delim" onchange="set('delim',this.value)"><option value=",">, comma</option><option value="\t">\t tab</option><option value="|">| pipe</option><option value=";">; semicolon</option></select>
+                    </div>
+                    <div class="f">
+                      <label class="tt below" data-tip="Expected line terminator. Mixed endings often signal a file assembled by two different processes.">Line ending<span class="qm">?</span></label>
+                      <select id="eol" onchange="set('eol',this.value)"><option value="\n">\n LF</option><option value="\r\n">\r\n CRLF</option></select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="grp">
+                  <div class="gk">Filename contract</div>
+                  <div class="f">
+                    <label class="tt below" data-tip="Named capture groups become the file's identity: which property, which business date, which report. Any file that does not match is refused at the door.">Regex pattern · named groups<span class="qm">?</span></label>
+                    <input class="mono" id="rx" oninput="set('rx',this.value);parse()">
+                    <div class="hint">Required groups: <b>property</b>, <b>date</b>, <b>report_type</b>. Optional: <b>hash</b>.</div>
+                  </div>
+                  <div class="tokbox">
+                    <div class="tokhd">
+                      <span class="k">Token preview</span>
+                      <span style="font-size:11px;color:var(--mut-2)">Edit the sample to test the pattern</span>
+                    </div>
+                    <input class="sample" id="samp" oninput="parse()">
+                    <div id="split"></div>
+                    <div class="toks" id="toks"></div>
+                    <div id="parseMsg"></div>
+                  </div>
+                </div>
+
+                <div class="grp">
+                  <div class="gk">Path-to-filename agreement</div>
+                  <button class="tg on" onclick="tg(this,'pathAgree');renderMap()" style="max-width:520px"><span class="sw"></span><span class="tx"><span class="tl">Assert directory path agrees with filename tokens</span><span class="td">Catches a correct file delivered to the wrong property folder — the failure mode no filename check can see.</span></span></button>
+                  <div id="mapWrap" style="margin-top:12px">
+                    <table>
+                      <thead><tr><th>Path segment</th><th>Must equal token</th><th>Example</th></tr></thead>
+                      <tbody id="mapBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="grp">
+                  <div class="gk">Atomic set rules</div>
+                  <button class="tg on" onclick="tg(this,'atomic')" style="max-width:520px"><span class="sw"></span><span class="tx"><span class="tl">Hold the batch until the set is complete</span><span class="td">Partial sets are held, not processed. Reconciliation across sales, payments and headers is only meaningful when all members arrived.</span></span></button>
+                  <div style="margin-top:12px">
+                    <label class="tt below" data-tip="Every endpoint listed must be present for the same business date before the batch is released to ETL." style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mut-2);margin-bottom:8px">Required endpoint files<span class="qm">?</span></label>
+                    <div class="chips" id="setChips"></div>
+                    <div class="addrow">
+                      <input id="setAdd" placeholder="add endpoint, e.g. discounts_data" onkeydown="if(event.key==='Enter'){addSet();event.preventDefault()}">
+                      <button class="btn sm" onclick="addSet()">Add</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="grp">
+                  <div class="gk">Line conservation</div>
+                  <div class="s" style="font-size:12px;color:var(--mut);margin:-4px 0 12px;max-width:640px">Proves nothing was lost in transit: declared rows, header and footer lines must account for every byte-line in the file.</div>
+                  <div class="row two">
+                    <div class="f">
+                      <label class="tt below" data-tip="Pattern identifying the header line so it is excluded from the row count rather than treated as data.">Header pattern<span class="qm">?</span></label>
+                      <input class="mono" id="hdrPat" value="^check_id\\|" oninput="set('hdrPat',this.value)">
+                    </div>
+                    <div class="f">
+                      <label class="tt below" data-tip="Pattern identifying a trailer line, if the vendor writes one.">Footer pattern <span class="opt">· optional</span><span class="qm">?</span></label>
+                      <input class="mono" id="ftrPat" value="^EOF" oninput="set('ftrPat',this.value)">
+                    </div>
+                  </div>
+                  <div class="f" style="margin-top:13px;max-width:430px">
+                    <label class="tt below" data-tip="If the vendor declares a row count in the trailer, the airlock asserts it against the lines actually received.">Declared line-count regex <span class="opt">· optional</span><span class="qm">?</span></label>
+                    <input class="mono" id="cntPat" value="^EOF\\|(?&lt;rows&gt;\\d+)$" oninput="set('cntPat',this.value)">
+                  </div>
+                </div>
+
+                <div class="grp">
+                  <div class="gk">Noise filter</div>
+                  <div class="s" style="font-size:12px;color:var(--mut);margin:-4px 0 10px">Artifacts ignored silently — they are not treated as unexpected files and never trigger an alert.</div>
+                  <div class="chips" id="noiseChips"></div>
+                  <div class="addrow" style="max-width:420px">
+                    <input id="noiseAdd" placeholder="add glob, e.g. Thumbs.db" onkeydown="if(event.key==='Enter'){addNoise();event.preventDefault()}">
+                    <button class="btn sm" onclick="addNoise()">Add</button>
+                  </div>
+                </div>
+
+                <div class="grp">
+                  <div class="gk">Outcome on failure</div>
+                  <div class="f" style="max-width:340px">
+                    <label class="tt below" data-tip="Reject returns the file to the vendor prefix untouched. Quarantine holds it for a human to inspect.">Gate 1 failure routes to<span class="qm">?</span></label>
+                    <select id="g1out" onchange="set('g1out',this.value);renderRoute()"><option value="REJECT_FILE">REJECT_FILE</option><option value="QUARANTINE_FILE">QUARANTINE_FILE</option></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== 2 · GATE 2 ===== -->
+          <div class="sec" id="s2">
+            <div class="card">
+              <div class="chd">
+                <div>
+                  <div class="t"><span class="gtag">Gate 2</span>Anomaly detection</div>
+                  <div class="s">Stateful trend checks. A file can be perfectly formed and still be wrong — half a day's covers, a frozen business date, a rewritten history. These need memory of prior runs.</div>
+                </div>
+                <span class="nomut tt below" data-tip="Compares against the rolling baseline and flags. The file itself is never altered."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Non-mutating</span>
+              </div>
+              <div class="cb">
+                <div class="grp">
+                  <div class="gk">Volume anomaly sensitivity</div>
+                  <div class="f">
+                    <label class="tt below" data-tip="Row count is compared with the rolling baseline. z is how many standard deviations today sits from the mean. Lower is stricter — more flags, more noise.">Z-score threshold<span class="qm">?</span></label>
+                    <div class="sld">
+                      <input type="range" min="1.5" max="5" step="0.1" value="3" id="zr" oninput="setZ(this.value)">
+                      <span class="val" id="zv">|z| &gt; 3.0</span>
+                    </div>
+                    <div class="scale"><span>1.5 · strict</span><span>3.0 · balanced</span><span>5.0 · permissive</span></div>
+                    <div class="hint" id="zHint"></div>
+                  </div>
+                </div>
+                <div class="grp">
+                  <div class="gk">Baseline &amp; drift checks</div>
+                  <div class="tglist">
+                    <button class="tg on" onclick="tg(this,'dow');dryRun()"><span class="sw"></span><span class="tx"><span class="tl">Day-of-week baseline matching</span><span class="td">Compares Saturday against the last four Saturdays over a rolling 30-day window, not against a flat average. Hospitality volume is weekly, not daily.</span></span></button>
+                    <button class="tg on" onclick="tg(this,'frozen');dryRun()"><span class="sw"></span><span class="tx"><span class="tl">Frozen window check</span><span class="td">Flags a business date that has not advanced since the previous run — the signature of a re-sent yesterday.</span></span></button>
+                    <button class="tg on" onclick="tg(this,'overlap');dryRun()"><span class="sw"></span><span class="tx"><span class="tl">Overlap drift check</span><span class="td">In rolling extracts, compares the overlapping days against what was received before and flags unannounced historical edits.</span></span></button>
+                  </div>
+                </div>
+                <div class="grp">
+                  <div class="gk">Outcome on failure</div>
+                  <div class="f" style="max-width:340px">
+                    <label class="tt below" data-tip="Flag lets the data continue with an alert raised. Quarantine stops it. Most properties start on FLAG and tighten once the baseline settles.">Gate 2 anomaly routes to<span class="qm">?</span></label>
+                    <select id="g2out" onchange="set('g2out',this.value);renderRoute();dryRun()"><option value="FLAG_ONLY">FLAG_ONLY</option><option value="QUARANTINE_FILE">QUARANTINE_FILE</option></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== 3 · GATE 3 ===== -->
+          <div class="sec" id="s3">
+            <div class="card">
+              <div class="chd">
+                <div>
+                  <div class="t"><span class="gtag">Gate 3</span>Data quality</div>
+                  <div class="s">Structure and type rules applied to the file as delivered. Nothing is coerced, defaulted or cleaned — a value that fails is reported, not repaired.</div>
+                </div>
+                <span class="nomut tt below" data-tip="Inspection only. No casting, trimming or default-filling happens at this gate."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Non-mutating</span>
+              </div>
+              <div class="cb">
+                <div class="grp">
+                  <div class="gk">Schema inspection</div>
+                  <div class="tglist">
+                    <button class="tg on" onclick="tg(this,'qCols');dryRun()"><span class="sw"></span><span class="tx"><span class="tl">Required columns present</span><span class="td">Asserts the agreed column set exists by name. A dropped column is caught before it becomes a silent null downstream.</span></span></button>
+                    <button class="tg on" onclick="tg(this,'qNull');dryRun()"><span class="sw"></span><span class="tx"><span class="tl">Mandatory fields non-null</span><span class="td">Check ID, business date, outlet and net amount must carry a value on every row.</span></span></button>
+                    <button class="tg on" onclick="tg(this,'qIso');dryRun()"><span class="sw"></span><span class="tx"><span class="tl">Strict ISO-8601 timestamps</span><span class="td">Rejects ambiguous formats. <span style="font-family:var(--mono)">03/04/2026</span> is two different days depending on who wrote it.</span></span></button>
+                  </div>
+                </div>
+                <div class="grp">
+                  <div class="gk">Range constraints</div>
+                  <div class="row">
+                    <div class="f">
+                      <label class="tt below" data-tip="Bounds for item quantity per line. Values outside the range are reported with row references.">Item quantity min<span class="qm">?</span></label>
+                      <input type="number" value="-50" id="qtyMin" onchange="set('qtyMin',this.value)">
+                    </div>
+                    <div class="f"><label>Item quantity max</label><input type="number" value="500" id="qtyMax" onchange="set('qtyMax',this.value)"></div>
+                    <div class="f">
+                      <label class="tt below" data-tip="Highest plausible line number on a single check. A spike here usually means a parser has merged two checks.">Check line number max<span class="qm">?</span></label>
+                      <input type="number" value="200" id="lineMax" onchange="set('lineMax',this.value)">
+                    </div>
+                  </div>
+                  <div class="hint" style="margin-top:8px">Negative quantities are permitted by default — voids and returns are legitimate POS rows.</div>
+                </div>
+                <div class="grp">
+                  <div class="gk">Unmapped field slots</div>
+                  <div class="f" style="max-width:360px">
+                    <label class="tt below" data-tip="Vendors add user-defined fields without notice. Above this count the airlock alerts so the mapping can be reviewed before the data is used.">Alert above N unmapped UDFs<span class="qm">?</span></label>
+                    <div class="unit"><input type="number" value="3" min="0" max="50" id="udf" onchange="set('udf',this.value);dryRun()"><span class="u">slots</span></div>
+                    <div class="hint">Currently mapped: 41 of 44 columns.</div>
+                  </div>
+                </div>
+                <div class="grp">
+                  <div class="gk">Outcome on failure</div>
+                  <div class="f" style="max-width:340px">
+                    <label>Gate 3 failure routes to</label>
+                    <select id="g3out" onchange="set('g3out',this.value);renderRoute();dryRun()"><option value="QUARANTINE_FILE">QUARANTINE_FILE</option><option value="FLAG_ONLY">FLAG_ONLY</option></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== 4 · GATE 4 ===== -->
+          <div class="sec" id="s4">
+            <div class="card">
+              <div class="chd">
+                <div>
+                  <div class="t"><span class="gtag">Gate 4</span>Revenue reconciliation</div>
+                  <div class="s">Financial macro-balancing. The last question before ETL: does the file agree with itself? If headers, lines and tenders disagree, every downstream revenue figure is wrong.</div>
+                </div>
+                <span class="nomut tt below" data-tip="Asserts equality and reports variance. No balancing entries are written."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Non-mutating</span>
+              </div>
+              <div class="cb">
+                <div class="grp">
+                  <div class="gk">Balance assertions</div>
+                  <div class="tglist">
+                    <button class="tg on" onclick="tg(this,'balHeader');dryRun()"><span class="sw"></span><span class="tx"><span class="tl">Header total equals lines plus tax</span><span class="td" style="font-family:var(--mono);font-size:11px">Header_Total == Σ(Sales_Items) + Tax</span></span></button>
+                    <button class="tg on" onclick="tg(this,'balTender');dryRun()"><span class="sw"></span><span class="tx"><span class="tl">Sales equals tender settlement</span><span class="td" style="font-family:var(--mono);font-size:11px">Σ(Check_Sales) == Σ(Payments/Tenders)</span></span></button>
+                  </div>
+                </div>
+                <div class="grp">
+                  <div class="gk">Tolerance</div>
+                  <div class="f" style="max-width:360px">
+                    <label class="tt below" data-tip="Allowance for currency rounding across many rows. Set too high and real revenue leakage hides inside the tolerance.">Max allowable variance<span class="qm">?</span></label>
+                    <div class="unit"><input type="number" value="0.01" step="0.01" min="0" id="tol" onchange="set('tol',this.value);dryRun()"><span class="u">EUR</span></div>
+                    <div class="hint">Applied per batch, not per check — so rounding cannot accumulate unnoticed.</div>
+                  </div>
+                </div>
+                <div class="grp">
+                  <div class="gk">Outcome on failure</div>
+                  <div class="f" style="max-width:340px">
+                    <label class="tt below" data-tip="An imbalance is rarely safe to pass through — quarantine is the default for financial disagreement.">Gate 4 imbalance routes to<span class="qm">?</span></label>
+                    <select id="g4out" onchange="set('g4out',this.value);renderRoute();dryRun()"><option value="QUARANTINE_FILE">QUARANTINE_FILE</option><option value="FLAG_ONLY">FLAG_ONLY</option></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== 5 · REPORT OUT ===== -->
+          <div class="sec" id="s5">
+            <div class="card">
+              <div class="chd">
+                <div>
+                  <div class="t">Report out &amp; alert escalation</div>
+                  <div class="s">Every outcome has a destination. An unrouted outcome is an outage nobody hears about, so each row below must resolve to a channel or an owner.</div>
+                </div>
+              </div>
+              <div class="cb">
+                <table>
+                  <thead><tr><th style="width:170px">Gate outcome</th><th>Meaning</th><th style="width:210px">Route to</th></tr></thead>
+                  <tbody id="routeBody"></tbody>
+                </table>
+                <div class="grp">
+                  <div class="gk">SLA breach recipients</div>
+                  <div class="row two">
+                    <div class="f">
+                      <label class="tt below" data-tip="Emailed when no delivery arrives by cutoff plus grace. This is the only outcome a Slack channel cannot resolve on its own.">Account owner email<span class="qm">?</span></label>
+                      <input type="email" value="account.owner@ieggroup.net" id="emOwner" onchange="set('emOwner',this.value)">
+                    </div>
+                    <div class="f">
+                      <label>Property manager email</label>
+                      <input type="email" value="gm.malaga@minorhotels.com" id="emPm" onchange="set('emPm',this.value)">
+                    </div>
+                  </div>
+                </div>
+                <div class="grp">
+                  <div class="gk">Execution run report</div>
+                  <div class="tglist">
+                    <button class="tg on" onclick="tg(this,'manifest')"><span class="sw"></span><span class="tx"><span class="tl">Write full audit JSON manifest to S3</span><span class="td">One manifest per run, including passes. A gate that only records failures cannot prove a clean day happened.</span></span></button>
+                    <button class="tg" onclick="tg(this,'digest')"><span class="sw"></span><span class="tx"><span class="tl">Daily digest instead of per-file alerts</span><span class="td">Batches non-blocking flags into one morning summary. Blocking outcomes always alert immediately.</span></span></button>
+                  </div>
+                  <div class="f" style="margin-top:13px;max-width:520px">
+                    <label class="tt below" data-tip="Where run manifests are written. Retained for audit and used to rebuild the anomaly baseline.">Manifest prefix<span class="qm">?</span></label>
+                    <input class="mono" value="s3://ing-airlock/reports/ESMA.MALAG/" id="mfPrefix" onchange="set('mfPrefix',this.value)">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TEST BENCH ============ -->
+<div class="scrim" id="scrim" onclick="closeDrw()"></div>
+<aside class="drw" id="drw">
+  <div class="dhd">
+    <div>
+      <div class="t">Live S3 test bench</div>
+      <div class="s">Dry run against a real landing file. Read-only — no transformation, no save, no downstream release.</div>
+    </div>
+    <button class="x" onclick="closeDrw()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="dbd" id="dbd"></div>
+  <div class="dft">
+    <span class="lg" id="dftNote">Select a file to dry run</span>
+    <button class="btn pri" id="runBtn" onclick="runNow()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9z"/></svg>Run all four gates</button>
+  </div>
+</aside>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg><span id="toastMsg"></span></div>
+
+<script>
+/* ============ CONFIG ============ */
+const CFG={
+  tz:'Europe/Madrid',cutoff:'07:00',grace:60,ledgerBackfill:1,ledgerWeekend:1,
+  enc:'UTF-8',delim:',',eol:'\n',
+  rx:'^(?<report_type>[a-z_]+)_(?<property>[A-Z]{4}\\.[A-Z]{5})_(?<date>\\d{4}-\\d{2}-\\d{2})__(?<hash>[a-f0-9]+)\\.csv$',
+  samp:'sales_data_ESMA.MALAG_2026-08-09__a91f.csv',
+  pathAgree:1,atomic:1,
+  set:['headers_data','sales_data','payments_data'],
+  noise:['__MACOSX/','._*','.DS_Store','*.tmp'],
+  hdrPat:'^check_id\\|',ftrPat:'^EOF',cntPat:'^EOF\\|(?<rows>\\d+)$',
+  z:3,dow:1,frozen:1,overlap:1,
+  qCols:1,qNull:1,qIso:1,qtyMin:-50,qtyMax:500,lineMax:200,udf:3,
+  balHeader:1,balTender:1,tol:0.01,
+  manifest:1,digest:0,
+  g1out:'REJECT_FILE',g2out:'FLAG_ONLY',g3out:'QUARANTINE_FILE',g4out:'QUARANTINE_FILE',
+  route:{QUARANTINE_FILE:'#data-ops-alerts',REJECT_FILE:'#data-ops-alerts',HOLD_SET:'#data-ops-alerts + dashboard',FLAG_ONLY:'Operational dashboard',MISSING_DELIVERY:'Email · account owner + property manager'},
+  emOwner:'account.owner@ieggroup.net',emPm:'gm.malaga@minorhotels.com',
+  mfPrefix:'s3://ing-airlock/reports/ESMA.MALAG/'
+};
+const set=(k,v)=>{CFG[k]=v;if(k==='rx'||k==='samp')parse()};
+function tg(el,k){el.classList.toggle('on');CFG[k]=el.classList.contains('on')?1:0;if(k==='pathAgree')renderMap();}
+
+/* ============ SECTION RAIL ============ */
+const SECS=[
+  {n:'·',t:'Schedule &amp; SLA',s:'Cutoff, grace, ledger'},
+  {n:'1',t:'Extraction contract',s:'Stateless landing checks'},
+  {n:'2',t:'Anomaly detection',s:'Stateful trend checks'},
+  {n:'3',t:'Data quality',s:'Structure &amp; type rules'},
+  {n:'4',t:'Revenue reconciliation',s:'Financial balancing'},
+  {n:'·',t:'Report out &amp; alerts',s:'Routing &amp; manifests'}
+];
+let secIx=1;
+function renderRail(){
+  document.getElementById('rail').innerHTML='<div class="rk">Airlock contract</div>'+SECS.map((s,i)=>
+    `<button class="rn${i===secIx?' on':''}" onclick="goSec(${i})"><span class="num">${s.n}</span><span class="rl2"><b>${s.t}</b><i>${s.s}</i></span></button>`).join('');
+}
+function goSec(i){
+  secIx=i;renderRail();
+  document.querySelectorAll('.sec').forEach((e,k)=>e.classList.toggle('on',k===i));
+  document.querySelector('.scroll').scrollTop=0;
+}
+
+/* ============ VENDOR PRESETS ============ */
+const PRESETS=[
+  {id:'onesait',n:'One Sait POS',note:'Pipe-delimited POS extract with an EOF trailer and a three-file atomic set. Business date is the trading day, not the transmission day.',
+   cfg:{delim:'|',eol:'\r\n',enc:'UTF-8',rx:'^(?<report_type>[a-z_]+)_(?<property>[A-Z]{4}\\.[A-Z]{5})_(?<date>\\d{4}-\\d{2}-\\d{2})__(?<hash>[a-f0-9]+)\\.csv$',samp:'sales_data_ESMA.MALAG_2026-08-09__a91f.csv',set:['headers_data','sales_data','payments_data'],hdrPat:'^check_id\\|',ftrPat:'^EOF',z:3,tol:0.01}},
+  {id:'opera',n:'Opera V5 PMS',note:'Single nightly file, comma-delimited, no trailer. Rolling seven-day extract, so overlap drift matters more than volume.',
+   cfg:{delim:',',eol:'\n',enc:'ISO-8859-1',rx:'^(?<property>[A-Z]{4}\\.[A-Z]{5})_(?<report_type>[A-Z_]+)_(?<date>\\d{8})\\.txt$',samp:'ESMA.MALAG_STAT_DAILY_20260809.txt',set:['stat_daily'],hdrPat:'^RESV_NAME_ID,',ftrPat:'',z:2.5,tol:0.05}},
+  {id:'cloudbeds',n:'Cloudbeds',note:'API-sourced CSV drop, UTF-8 with BOM. Timestamps arrive in UTC, so strict ISO checking is essential.',
+   cfg:{delim:',',eol:'\n',enc:'UTF-8-BOM',rx:'^(?<property>[a-z\\-]+)-(?<report_type>[a-z]+)-(?<date>\\d{4}-\\d{2}-\\d{2})\\.csv$',samp:'malaga-eurobuilding-reservations-2026-08-09.csv',set:['reservations','folios'],hdrPat:'^reservation_id,',ftrPat:'',z:3.5,tol:0.01}}
+];
+let preset='onesait';
+function renderPresets(){
+  document.getElementById('presets').innerHTML=PRESETS.map(p=>
+    `<button class="pchip${preset===p.id?' on':''}" onclick="applyPreset('${p.id}')">${preset===p.id?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>':''}${p.n}</button>`).join('');
+  document.getElementById('presetNote').textContent=PRESETS.find(p=>p.id===preset).note;
+}
+function applyPreset(id){
+  preset=id;
+  const p=PRESETS.find(x=>x.id===id);
+  Object.assign(CFG,p.cfg);
+  /* reflect into the controls the preset owns */
+  document.getElementById('enc').value=CFG.enc;
+  document.getElementById('delim').value=CFG.delim;
+  document.getElementById('eol').value=CFG.eol;
+  document.getElementById('rx').value=CFG.rx;
+  document.getElementById('samp').value=CFG.samp;
+  document.getElementById('hdrPat').value=CFG.hdrPat;
+  document.getElementById('ftrPat').value=CFG.ftrPat;
+  document.getElementById('zr').value=CFG.z;
+  document.getElementById('tol').value=CFG.tol;
+  setZ(CFG.z);renderPresets();renderSet();parse();renderMap();dryRun();
+  toast(p.n+' preset applied — review before saving');
+}
+
+/* ============ REGEX TOKEN HELPER ============ */
+function parse(){
+  const rx=document.getElementById('rx').value, s=document.getElementById('samp').value;
+  CFG.rx=rx;CFG.samp=s;
+  let re,m=null,err=null;
+  try{re=new RegExp(rx);m=re.exec(s)}catch(e){err=e.message}
+  const need=['property','date','report_type'];
+  const box=document.getElementById('toks'), msg=document.getElementById('parseMsg'), sp=document.getElementById('split');
+  if(err){
+    box.innerHTML='';sp.innerHTML='';
+    msg.innerHTML='<div class="parse bad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Pattern is not valid: '+esc(err)+'</div>';
+    return;
+  }
+  if(!m){
+    box.innerHTML=need.map(k=>`<div class="tok miss"><span class="tk">${k}</span><span class="tv">no match</span></div>`).join('');
+    sp.innerHTML='';
+    msg.innerHTML='<div class="parse bad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>This filename would be refused at Gate 1 — the pattern does not match.</div>';
+    dryRun();return;
+  }
+  const gr=m.groups||{};
+  const keys=Object.keys(gr);
+  box.innerHTML=need.concat(keys.filter(k=>!need.includes(k))).map(k=>
+    `<div class="tok${gr[k]===undefined?' miss':''}"><span class="tk">${k}</span><span class="tv">${gr[k]===undefined?'group not defined':esc(gr[k])}</span></div>`).join('');
+  /* visual split of the sample by capture position */
+  let parts=[],cursor=0;
+  keys.map(k=>({k,i:m[0].indexOf(gr[k]),v:gr[k]})).filter(x=>x.i>=0&&x.v).sort((a,b)=>a.i-b.i).forEach(x=>{
+    if(x.i<cursor)return;
+    if(x.i>cursor)parts.push(esc(m[0].slice(cursor,x.i)));
+    parts.push(`<span class="sp ${x.k}">${esc(x.v)}</span>`);
+    cursor=x.i+x.v.length;
+  });
+  if(cursor<m[0].length)parts.push(esc(m[0].slice(cursor)));
+  sp.innerHTML='<div class="split">'+parts.join('')+'</div>';
+  const missing=need.filter(k=>gr[k]===undefined);
+  msg.innerHTML=missing.length
+    ? '<div class="parse bad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Missing required group'+(missing.length>1?'s':'')+': '+missing.join(', ')+'</div>'
+    : '<div class="parse ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Identity resolved — property, business date and report type all captured.</div>';
+  renderMap();dryRun();
+}
+function tokens(name){
+  try{const m=new RegExp(CFG.rx).exec(name);return m?(m.groups||{}):null}catch(e){return null}
+}
+
+/* ============ PATH AGREEMENT MAP ============ */
+function renderMap(){
+  const w=document.getElementById('mapWrap');
+  w.style.display=CFG.pathAgree?'':'none';
+  if(!CFG.pathAgree)return;
+  const g=tokens(CFG.samp)||{};
+  const rows=[
+    ['raw/&lt;property&gt;/','property',g.property||'—'],
+    ['&lt;date&gt;/','date',g.date||'—'],
+    ['&lt;report_type&gt;/','report_type',g.report_type||'—']
+  ];
+  document.getElementById('mapBody').innerHTML=rows.map(([p,t,v])=>
+    `<tr><td class="mono">${p}</td><td><span class="oc f">${t}</span></td><td class="mono" style="color:${v==='—'?'var(--mut-2)':'var(--ink)'}">${esc(v)}</td></tr>`).join('');
+}
+
+/* ============ CHIP LISTS ============ */
+function renderSet(){
+  document.getElementById('setChips').innerHTML=CFG.set.map((s,i)=>
+    `<span class="ch req">${esc(s)}<button onclick="CFG.set.splice(${i},1);renderSet();dryRun()" title="Remove from the required set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M18 6L6 18M6 6l12 12"/></svg></button></span>`).join('')
+    ||'<span style="font-size:12px;color:var(--mut-2)">No atomic set — each file releases independently.</span>';
+}
+function addSet(){
+  const el=document.getElementById('setAdd'), v=el.value.trim();
+  if(!v)return;CFG.set.push(v);el.value='';renderSet();dryRun();
+}
+function renderNoise(){
+  document.getElementById('noiseChips').innerHTML=CFG.noise.map((s,i)=>
+    `<span class="ch">${esc(s)}<button onclick="CFG.noise.splice(${i},1);renderNoise()" title="Stop ignoring this pattern"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M18 6L6 18M6 6l12 12"/></svg></button></span>`).join('');
+}
+function addNoise(){
+  const el=document.getElementById('noiseAdd'), v=el.value.trim();
+  if(!v)return;CFG.noise.push(v);el.value='';renderNoise();
+}
+
+/* ============ Z SLIDER ============ */
+function setZ(v){
+  CFG.z=parseFloat(v);
+  document.getElementById('zv').innerHTML='|z| &gt; '+CFG.z.toFixed(1);
+  document.getElementById('zr').value=v;
+  const n=CFG.z<2.2?'Strict — expect flags on ordinary weekday variation.'
+   :CFG.z<3.6?'Balanced — catches half-day and double-day deliveries without flagging normal trade.'
+   :'Permissive — only gross volume failures are caught.';
+  document.getElementById('zHint').textContent=n;
+  dryRun();
+}
+
+/* ============ ROUTING TABLE ============ */
+const OUTCOMES=[
+  ['QUARANTINE_FILE','q','File held for human inspection. Not released to ETL.'],
+  ['REJECT_FILE','r','Returned to the vendor prefix untouched. Vendor must resend.'],
+  ['HOLD_SET','h','Atomic set incomplete. Members wait for the missing endpoint.'],
+  ['FLAG_ONLY','f','Data continues. An observation is recorded and alerted.'],
+  ['MISSING_DELIVERY','m','Nothing arrived by cutoff plus grace. SLA breach.']
+];
+const CHANNELS=['#data-ops-alerts','#data-ops-alerts + dashboard','Operational dashboard','Email · account owner + property manager','#airlock-quarantine','Suppressed — digest only'];
+function renderRoute(){
+  const used=[CFG.g1out,CFG.g2out,CFG.g3out,CFG.g4out];
+  document.getElementById('routeBody').innerHTML=OUTCOMES.map(([o,c,d])=>{
+    const inUse=used.includes(o)||o==='HOLD_SET'&&CFG.atomic||o==='MISSING_DELIVERY';
+    return `<tr${inUse?'':' style="opacity:.5"'}>
+      <td><span class="oc ${c}">${o}</span>${inUse?'':'<div style="font-size:10.5px;color:var(--mut-2);margin-top:4px">not produced by current config</div>'}</td>
+      <td style="font-size:12px;color:var(--mut)">${d}</td>
+      <td><select onchange="CFG.route['${o}']=this.value">${CHANNELS.map(ch=>`<option${CFG.route[o]===ch?' selected':''}>${ch}</option>`).join('')}</select></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ============ TEST BENCH ============ */
+/* each sample carries the measured facts; verdicts are computed from CFG so
+   changing a threshold changes the outcome — the bench is not scripted */
+const FILES=[
+  {n:'sales_data_ESMA.MALAG_2026-08-09__a91f.csv',sz:'4.2 MB',rows:18422,z:0.4,bizDate:'2026-08-09',prevDate:'2026-08-08',setPresent:['headers_data','sales_data','payments_data'],nulls:0,iso:1,udfNew:1,hdrTotal:184220.55,lineSum:167472.32,tax:16748.23,tenders:184220.55,drift:0},
+  {n:'sales_data_ESMA.MALAG_2026-08-10__77c2.csv',sz:'1.1 MB',rows:4180,z:4.2,bizDate:'2026-08-10',prevDate:'2026-08-09',setPresent:['headers_data','sales_data','payments_data'],nulls:0,iso:1,udfNew:1,hdrTotal:41800.00,lineSum:38000.00,tax:3800.00,tenders:41800.00,drift:0},
+  {n:'sales_data_ESMA.MALAG_2026-08-11__c40d.csv',sz:'4.4 MB',rows:19004,z:0.7,bizDate:'2026-08-11',prevDate:'2026-08-10',setPresent:['headers_data','sales_data'],nulls:0,iso:1,udfNew:2,hdrTotal:190040.10,lineSum:172763.73,tax:17276.37,tenders:190040.10,drift:0},
+  {n:'sales_data_ESMA.MALAG_2026-08-12__e17b.csv',sz:'4.3 MB',rows:18790,z:0.3,bizDate:'2026-08-12',prevDate:'2026-08-11',setPresent:['headers_data','sales_data','payments_data'],nulls:0,iso:1,udfNew:6,hdrTotal:187900.00,lineSum:170818.18,tax:17081.82,tenders:187827.40,drift:0},
+  {n:'sales_data_ESMAMALAG_20260813.csv',sz:'4.1 MB',rows:18120,z:0.2,bizDate:'2026-08-13',prevDate:'2026-08-12',setPresent:['headers_data','sales_data','payments_data'],nulls:0,iso:1,udfNew:1,hdrTotal:181200.00,lineSum:164727.27,tax:16472.73,tenders:181200.00,drift:0},
+  {n:'sales_data_ESMA.MALAG_2026-08-14__b22a.csv',sz:'4.2 MB',rows:18510,z:0.5,bizDate:'2026-08-13',prevDate:'2026-08-13',setPresent:['headers_data','sales_data','payments_data'],nulls:37,iso:0,udfNew:1,hdrTotal:185100.00,lineSum:168272.73,tax:16827.27,tenders:185100.00,drift:214}
+];
+let pick=null, result=null;
+
+function openDrw(){document.getElementById('drw').classList.add('on');document.getElementById('scrim').classList.add('on');renderDrw()}
+function closeDrw(){document.getElementById('drw').classList.remove('on');document.getElementById('scrim').classList.remove('on')}
+
+function gateEval(f){
+  /* Gate 1 — stateless */
+  const g=tokens(f.n);
+  const g1=[];
+  if(!g)g1.push('Filename does not match the contract pattern');
+  else{
+    if(g.property!=='ESMA.MALAG'&&preset==='onesait')g1.push('Property token '+g.property+' does not match ESMA.MALAG');
+    ['property','date','report_type'].forEach(k=>{if(g[k]===undefined)g1.push('Required token missing: '+k)});
+  }
+  const miss=CFG.atomic?CFG.set.filter(s=>!f.setPresent.includes(s)):[];
+  /* Gate 2 — stateful */
+  const g2=[];
+  if(Math.abs(f.z)>CFG.z)g2.push('Row volume z='+f.z.toFixed(1)+' exceeds threshold '+CFG.z.toFixed(1));
+  if(CFG.frozen&&f.bizDate===f.prevDate)g2.push('Business date '+f.bizDate+' has not advanced since the previous run');
+  if(CFG.overlap&&f.drift>0)g2.push(f.drift+' historical rows changed without notice in the overlap window');
+  /* Gate 3 */
+  const g3=[];
+  if(CFG.qNull&&f.nulls>0)g3.push(f.nulls+' rows have nulls in mandatory fields');
+  if(CFG.qIso&&!f.iso)g3.push('Timestamps are not strict ISO-8601');
+  if(f.udfNew>CFG.udf)g3.push(f.udfNew+' unmapped UDF slots exceed the threshold of '+CFG.udf);
+  /* Gate 4 */
+  const g4=[];
+  const d1=Math.abs(f.hdrTotal-(f.lineSum+f.tax)), d2=Math.abs(f.hdrTotal-f.tenders);
+  if(CFG.balHeader&&d1>CFG.tol)g4.push('Header total differs from lines plus tax by '+d1.toFixed(2)+' EUR');
+  if(CFG.balTender&&d2>CFG.tol)g4.push('Sales differs from tender settlement by '+d2.toFixed(2)+' EUR');
+
+  const st=(fails,out)=>fails.length===0?'PASS':(out==='FLAG_ONLY'?'FLAG':out==='REJECT_FILE'?'REJECT':'QUARANTINE');
+  const s1=st(g1,CFG.g1out);
+  const blocked1=s1!=='PASS'&&s1!=='FLAG';
+  const sHold=miss.length?'HOLD':null;
+  const s2=blocked1?'SKIPPED':st(g2,CFG.g2out);
+  const s3=blocked1?'SKIPPED':st(g3,CFG.g3out);
+  const s4=blocked1?'SKIPPED':st(g4,CFG.g4out);
+  let final='RELEASED', outcome='RELEASE_TO_ETL';
+  if(blocked1){final=s1;outcome=CFG.g1out}
+  else if(sHold){final='HOLD';outcome='HOLD_SET'}
+  else if([s2,s3,s4].includes('QUARANTINE')){final='QUARANTINE';outcome='QUARANTINE_FILE'}
+  else if([s2,s3,s4].includes('FLAG')){final='FLAGGED';outcome='FLAG_ONLY'}
+  return {g,g1,g2,g3,g4,miss,s1,s2,s3,s4,sHold,final,outcome,d1,d2};
+}
+function dryRun(){if(pick&&document.getElementById('drw').classList.contains('on'))renderDrw()}
+function runNow(){
+  if(!pick){toast('Select a sample file first');return}
+  result=gateEval(pick);renderDrw();
+  toast('Dry run complete — '+result.outcome+' · nothing was saved');
+}
+const CLS={PASS:'pass',FLAG:'flag',QUARANTINE:'quar',REJECT:'quar',HOLD:'hold',SKIPPED:'skip'};
+function renderDrw(){
+  const b=document.getElementById('dbd');
+  let h='';
+  h+=`<div class="drop" id="drop" onclick="toast('Drag a file here, or pick from the prefix below')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+    <b>Drop a sample file to dry run</b>
+    <div class="p">${esc(CFG.mfPrefix.replace('/reports/','/raw/'))}</div>
+  </div>`;
+  h+=`<div class="fk">Recent files in prefix</div><div class="flist">`+FILES.map((f,i)=>
+    `<button class="fitem${pick===f?' on':''}" onclick="pickFile(${i})">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      <span class="fn">${esc(f.n)}</span><span class="fm">${f.sz}<br>${f.rows.toLocaleString()} rows</span>
+    </button>`).join('')+`</div>`;
+
+  if(pick&&result){
+    const V={RELEASED:['v-pass','Released to ETL','All four gates passed. The file is unchanged and has been handed to downstream ETL.'],
+      FLAGGED:['v-flag','Released with flags','Non-blocking observations were raised. Data continues; the alert is routed and recorded in the run manifest.'],
+      QUARANTINE:['v-quar','Quarantined','Held for human inspection. Not released to ETL.'],
+      REJECT:['v-quar','Rejected','Returned to the vendor prefix untouched. The vendor must resend.'],
+      HOLD:['v-hold','Set held','The atomic set is incomplete. Members wait for the missing endpoint before any release.']}[result.final]||['v-quar','Blocked',''];
+    h+=`<div class="fk">Run report</div>
+      <div class="verdict ${V[0]}"><div class="vk">Outcome</div><div class="vv">${V[1]}</div><div class="vd">${V[2]}</div></div>`;
+    const rows=[
+      ['1','Extraction contract',result.s1,result.g1],
+      ['2','Anomaly detection',result.s2,result.g2],
+      ['3','Data quality',result.s3,result.g3],
+      ['4','Revenue reconciliation',result.s4,result.g4]
+    ];
+    h+='<div class="gates">'+rows.map(([n,t,s,fails])=>
+      `<div class="gr"><span class="gi st-${CLS[s]}-i">${n}</span><span class="gt"><span class="gn">${t}</span><span class="gd">${
+        s==='SKIPPED'?'Not evaluated — the file was blocked at Gate 1.'
+        :fails.length?fails.map(esc).join(' · ')
+        :'All configured checks passed.'}</span></span><span class="bdg2 st-${CLS[s]}">${s}</span></div>`).join('');
+    if(result.miss.length)h+=`<div class="gr"><span class="gi st-hold-i">S</span><span class="gt"><span class="gn">Atomic set</span><span class="gd">Waiting on: ${result.miss.map(esc).join(', ')}</span></span><span class="bdg2 st-hold">HOLD</span></div>`;
+    h+='</div>';
+    h+='<div class="fk">ExtractionRunReport</div>'+json(pick,result);
+  }else if(pick){
+    h+='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3l14 9-14 9z"/></svg><div><b style="color:var(--ink-2)">'+esc(pick.n)+'</b> selected.<br>Run the gates to see the report — read-only, nothing is saved.</div></div>';
+  }else{
+    h+='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg><div>Pick a file from the prefix to dry run all four gates against the current contract.</div></div>';
+  }
+  b.innerHTML=h;
+  document.getElementById('dftNote').textContent=pick?(result?'Re-run after changing any threshold':'Ready to run'):'Select a file to dry run';
+  document.getElementById('runBtn').classList.toggle('dis',!pick);
+}
+function pickFile(i){pick=FILES[i];result=null;renderDrw()}
+function json(f,r){
+  const g=r.g||{};
+  const q=(k,v)=>`  <span class="k">"${k}"</span>: <span class="s">"${v}"</span>`;
+  const num=(k,v)=>`  <span class="k">"${k}"</span>: <span class="n">${v}</span>`;
+  const bool=(k,v)=>`  <span class="k">"${k}"</span>: <span class="b">${v?'true':'false'}</span>`;
+  const gj=(n,s,fails)=>`    <span class="k">"gate_${n}"</span>: { <span class="k">"status"</span>: <span class="s">"${s}"</span>, <span class="k">"findings"</span>: ${fails.length?'[<span class="s">"'+fails.map(x=>esc(x).replace(/"/g,'\\"')).join('"</span>, <span class="s">"')+'"</span>]':'[]'} }`;
+  return `<pre>{
+${q('run_id','ar_'+Math.abs(hash(f.n)).toString(16).slice(0,10))},
+${q('property_code','ESMA.MALAG')},
+${q('vendor_profile',PRESETS.find(p=>p.id===preset).n)},
+${q('file',f.n)},
+${q('business_date',g.date||'unresolved')},
+${q('report_type',g.report_type||'unresolved')},
+${num('rows_received',f.rows)},
+${bool('mutating',false)},
+  <span class="k">"gates"</span>: {
+${gj(1,r.s1,r.g1)},
+${gj(2,r.s2,r.g2)},
+${gj(3,r.s3,r.g3)},
+${gj(4,r.s4,r.g4)}
+  },
+  <span class="k">"atomic_set"</span>: { <span class="k">"required"</span>: ${CFG.set.length}, <span class="k">"present"</span>: ${f.setPresent.length}, <span class="k">"waiting_on"</span>: ${r.miss.length?'[<span class="s">"'+r.miss.join('"</span>, <span class="s">"')+'"</span>]':'[]'} },
+  <span class="k">"reconciliation"</span>: { <span class="k">"header_vs_lines_variance"</span>: <span class="n">${r.d1.toFixed(2)}</span>, <span class="k">"sales_vs_tender_variance"</span>: <span class="n">${r.d2.toFixed(2)}</span>, <span class="k">"tolerance"</span>: <span class="n">${(+CFG.tol).toFixed(2)}</span> },
+${q('outcome',r.outcome)},
+${q('routed_to',CFG.route[r.outcome]||'Operational dashboard')},
+${q('manifest',CFG.mfPrefix+'run_'+(g.date||'unresolved')+'.json')}
+}</pre>`;
+}
+function hash(s){let h=0;for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0}return h}
+
+/* ============ UTIL ============ */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function toast(m){const t=document.getElementById('toast');document.getElementById('toastMsg').textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2600)}
+function save(){toast('Airlock contract saved as v5 — effective next delivery')}
+function tgNav(el,id){el.classList.toggle('open');document.getElementById(id).classList.toggle('open')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrw()});
+
+/* ============ BOOT ============ */
+document.getElementById('rx').value=CFG.rx;
+document.getElementById('samp').value=CFG.samp;
+renderRail();goSec(1);renderPresets();renderSet();renderNoise();setZ(CFG.z);parse();renderRoute();
+</script>
+</body>
+</html>
