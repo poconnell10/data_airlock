@@ -1,0 +1,20 @@
+{
+  "name": "routes_hemali",
+  "install": "python3 -m pip install --user -r services/engine/requirements.txt -r requirements.txt\nnpm ci --prefix apps/web",
+  "ports": [
+    { "name": "engine", "port": 8000 },
+    { "name": "web", "port": 3000 }
+  ],
+  "terminals": [
+    {
+      "name": "engine",
+      "command": "cd services/engine && python3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+      "description": "FastAPI airlock engine (health at /health, OpenAPI at /docs)."
+    },
+    {
+      "name": "web",
+      "command": "cd apps/web && npm run dev",
+      "description": "Next.js property setup UI at http://localhost:3000."
+    }
+  ]
+}
